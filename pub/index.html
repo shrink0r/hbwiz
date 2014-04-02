@@ -1,0 +1,94 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Honeybee | Module Wizard</title>
+        <link rel="stylesheet" href="bower_components/foundation/css/foundation.min.css" />
+        <link rel="stylesheet" href="css/styles.css" />
+        <script src="js/vendor/modernizr.js"></script>
+    </head>
+
+    <body>
+        <div class="row" style="max-width: 85rem">
+            <div class="large-12 columns">
+                <h1>Honeybee Module Wizard</h1>
+            </div>
+        </div>
+
+        <div class="row" style="max-width: 85rem">
+            <div class="large-3 medium-3 columns toolbar-panel">
+                <h5>Toolbar</h5>
+                <div class="row">
+                    <div class="large-12 columns">
+                        <div class="callout panel">
+                            <h6>Modules</h6>
+                            <ul class="toolbar-type-modules toolbar-list">
+                            </ul>
+                            <h6>Fields</h6>
+                            <ul class="toolbar-type-fields toolbar-list">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="large-12 columns">
+                        <form class="module-properties-form">
+                            <div class="callout panel">
+                                <h6>Module Properties</h6>
+                                <label>Name
+                                    <input type="text" class="input-module-name" placeholder="Meaningfull module name." />
+                                </label>
+                                <label>Description
+                                    <input type="text" class="input-module-description" placeholder="What's the module's purpose?" />
+                                </label>
+                            </div>
+                        </form>
+                        <form class="field-properties-form">
+                            <div class="callout panel">
+                                <h6>Field Properties</h6>
+                                <label>Name
+                                    <input type="text" class="input-field-name" placeholder="Meaningfull field name." />
+                                </label>
+                                <label>Description
+                                    <input type="text" class="input-field-description" placeholder="What's the field's purpose?" />
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row show-schema">
+                    <div class="large-12 columns">
+                        <div class="callout panel">
+                            <button>Show Scheme</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="large-9 medium-9 columns">
+                <h5>Canvas</h5>
+                <div class="row">
+                    <div class="large-12 columns">
+                        <div class="callout panel" id="kjs-stage-container" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/foundation/js/foundation.min.js"></script>
+        <script src="bower_components/kineticjs/kinetic.min.js"></script>
+
+        <script defer="defer" src="js/CanvasController.js"></script>
+        <script defer="defer" src="js/ModuleShape.js"></script>
+        <script defer="defer" src="js/FieldShape.js"></script>
+        <script defer="defer" src="js/Toolbar.js"></script>
+        <script defer="defer" src="js/FieldForm.js"></script>
+        <script defer="defer" src="js/ModuleForm.js"></script>
+        <script defer="defer" src="js/ShapeConnection.js"></script>
+        <script defer="defer" src="js/Application.js"></script>
+        <script defer="defer" src="js/bootstrap.js"></script>
+    </body>
+</html>

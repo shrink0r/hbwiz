@@ -1,0 +1,31 @@
+.toolbar-panel h6
+{
+    border-bottom: 1px solid #b6edff;
+    padding-bottom: 5px;
+}
+
+.show-schema
+{
+    display: none;
+}
+
+.toolbar-list
+{
+
+}
+
+.toolbar-item
+{
+    cursor: pointer;
+}
+
+#kjs-stage-container
+{
+    padding: 0;
+}
+
+.module-properties-form,
+.field-properties-form
+{
+    display: none;
+}

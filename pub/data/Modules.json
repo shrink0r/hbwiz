@@ -1,0 +1,12 @@
+{
+    "root": {
+        "type": "root",
+        "label": "RootModule",
+        "description": "Represents a top level module."
+    },
+    "aggregate": {
+        "type": "aggregate",
+        "label": "AggregateModule",
+        "description": "Represents a nested/aggregate module."
+    }
+}

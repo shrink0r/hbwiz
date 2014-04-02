@@ -1,0 +1,22 @@
+{
+    "text": {
+        "type": "text",
+        "label": "Text",
+        "description": "Holds single textual data."
+    },
+    "textarea": {
+        "type": "textarea",
+        "label": "Textarea",
+        "description": "Holds multiline and rich textual data."
+    },
+    "reference": {
+        "type": "reference",
+        "label": "Reference",
+        "description": "Holds references to documents of other modules."
+    },
+    "aggregate": {
+        "type": "textarea",
+        "label": "Aggregate",
+        "description": "Allows to nest module definitions and thus structure your data."
+    }
+}
