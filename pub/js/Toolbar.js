@@ -1,6 +1,8 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery"
+], function($) {
+
+    "use strict";
 
     var Toolbar = function(element, options)
     {
@@ -34,7 +36,7 @@
     Toolbar.prototype.initEvents = function()
     {
         var that = this;
-        var $body = $($window[0].document.body);
+        var $body = $($(window)[0].document.body);
         var $dragging = null;
         var toolbar_type = false, toolbar_class = false;
         var toolbar_item_selector = null;
@@ -94,9 +96,6 @@
         });
     };
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
+    return Toolbar;
 
-    export_to.honeybee.wizard.Toolbar = Toolbar;
-})($(window));
+});

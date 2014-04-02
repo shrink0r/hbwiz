@@ -1,6 +1,9 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery",
+    "kineticjs"
+], function($, Kinetic) {
+
+    "use strict";
 
     var FieldShape = function(layer, name, options)
     {
@@ -144,9 +147,6 @@
         return group;
     }
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
+    return FieldShape;
 
-    export_to.honeybee.wizard.FieldShape = FieldShape;
-})($(window));
+});

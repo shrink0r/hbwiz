@@ -1,9 +1,14 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery",
+    "CanvasController",
+    "Toolbar",
+    "ModuleForm",
+    "ModuleShape",
+    "FieldForm",
+    "FieldShape"
+], function($, CanvasController, Toolbar, ModuleForm, ModuleShape, FieldForm, FieldShape) {
 
-    var CanvasController = export_to.honeybee.wizard.CanvasController;
-    var Toolbar = export_to.honeybee.wizard.Toolbar;
+    "use strict";
 
     var Application = function(element, options)
     {
@@ -56,17 +61,17 @@
 
     Application.prototype.createForms = function()
     {
-        var that = this, form_name, form_options;
+        var that = this, form_name, form_options, form;
         var onFormFieldChanged = this.onFormFieldChanged.bind(this);
         for (form_name in this.options.forms) {
             form_options = this.options.forms[form_name];
             if (form_name == 'module') {
-                form = new honeybee.wizard.ModuleForm(
+                form = new ModuleForm(
                     $(form_options.selector),
                     { name: form_name, onFieldChanged: onFormFieldChanged }
                 );
             } else {
-                form = new honeybee.wizard.FieldForm(
+                form = new FieldForm(
                     $(form_options.selector),
                     { name: form_name, onFieldChanged: onFormFieldChanged }
                 );
@@ -87,7 +92,7 @@
 
     Application.prototype.onCanvasShapeSelected = function(canvas_shape)
     {
-        if (canvas_shape instanceof honeybee.wizard.ModuleShape) {
+        if (canvas_shape instanceof ModuleShape) {
             this.forms.module.show(canvas_shape);
             if (canvas_shape.module_data.type === 'RootModule') {
                 $('.show-schema').show();
@@ -99,7 +104,7 @@
 
     Application.prototype.onCanvasShapeDeselected = function(canvas_shape)
     {
-        if (canvas_shape instanceof honeybee.wizard.ModuleShape) {
+        if (canvas_shape instanceof ModuleShape) {
             this.forms.module.hide(canvas_shape);
             if (canvas_shape.module_data.type === 'RootModule') {
                 $('.show-schema').hide();
@@ -109,9 +114,5 @@
         }
     };
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
-
-    export_to.honeybee.wizard.Application = Application;
-})($(window));
+    return Application;
+});

@@ -1,6 +1,8 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery"
+], function($) {
+
+    "use strict";
 
     var ModuleForm = function(element, options)
     {
@@ -51,9 +53,6 @@
         this.current_shape = null;
     };
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
+    return ModuleForm;
 
-    export_to.honeybee.wizard.ModuleForm = ModuleForm;
-})($(window));
+});

@@ -1,6 +1,9 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery",
+    "kineticjs"
+], function($, Kinetic) {
+
+    "use strict";
 
     var ShapeConnection = function(source, target, field, options)
     {
@@ -89,9 +92,6 @@
         this.capture_line.setPoints(points);
     };
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
+    return ShapeConnection;
 
-    export_to.honeybee.wizard.ShapeConnection = ShapeConnection;
-})($(window));
+});

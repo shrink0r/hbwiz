@@ -1,10 +1,16 @@
-(function($window, export_to)
-{
+define([
+    "jquery",
+    "foundation",
+    "Application"
+], function($, foundation, Application) {
+
+    "use strict";
+
     // init zurb foundation
-    $($window[0].document).foundation();
+    $(document).foundation();
 
     // then setup the honeybee module wizard application
-    var application = new export_to.honeybee.wizard.Application(
+    new Application(
         $(document.body),
         {
             'canvas_stage': '#kjs-stage-container',
@@ -30,4 +36,8 @@
             }
         }
     );
-})($(window), window);
+
+}, function (err) {
+// err has err.requireType (timeout, nodefine, scripterror)
+// and err.requireModules (an array of module Ids/paths)
+});

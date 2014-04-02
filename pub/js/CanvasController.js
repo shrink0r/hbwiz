@@ -1,6 +1,12 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery",
+    "kineticjs",
+    "ShapeConnection",
+    "ModuleShape",
+    "FieldShape"
+], function($, Kinectic, ShapeConnection, ModuleShape, FieldShape) {
+
+    "use strict";
 
     var CanvasController = function(element, options)
     {
@@ -27,7 +33,7 @@
     {
         var that = this;
         this.adjustStageContainerSize();
-        $window.resize(this.adjustStageContainerSize);
+        $(window).resize(this.adjustStageContainerSize);
 
         // initialize our stage
         this.stage = new Kinetic.Stage({
@@ -69,7 +75,7 @@
 
     CanvasController.prototype.adjustStageContainerSize = function()
     {
-        var stage_height = $window.height() - this.$element.offset().top - 75;
+        var stage_height = $(window).height() - this.$element.offset().top - 75;
         stage_height = stage_height > 300 ? stage_height : 300;
         this.$element.height(stage_height);
     };
@@ -104,7 +110,7 @@
             shape_options.y = toolbar_item.coords.y - relative_offset.top;
             shape_options.onSelected = this.onShapeSelected.bind(this);
             shape_options.onDeselected = this.onShapeDeselected.bind(this);
-            wizard_shape = new honeybee.wizard.ModuleShape(
+            wizard_shape = new ModuleShape(
                 this.layers.main,
                 toolbar_item.item.type,
                 shape_options
@@ -133,7 +139,7 @@
                 return false;
             }
 
-            wizard_shape = new honeybee.wizard.FieldShape(
+            wizard_shape = new FieldShape(
                 this.layers.main,
                 toolbar_item.item.type,
                 shape_options
@@ -197,7 +203,7 @@
 
     CanvasController.prototype.onShapeSelected = function(wizard_shape)
     {
-        if (wizard_shape instanceof honeybee.wizard.ModuleShape) {
+        if (wizard_shape instanceof ModuleShape) {
             if (this.active_shape) {
                 if (this.active_field
                     && this.active_field.field_data.type === 'Aggregate'
@@ -239,7 +245,7 @@
 
     CanvasController.prototype.connectAggregate = function(source, target, field)
     {
-        var connection = new honeybee.wizard.ShapeConnection(
+        var connection = new ShapeConnection(
             source,
             target,
             field,
@@ -264,7 +270,7 @@
 
     CanvasController.prototype.onShapeDeselected = function(wizard_shape)
     {
-        if (wizard_shape instanceof honeybee.wizard.ModuleShape) {
+        if (wizard_shape instanceof ModuleShape) {
             if (this.active_shape === wizard_shape) {
                 this.active_shape.deselect();
             }
@@ -281,9 +287,5 @@
         this.layers.main.draw();
     };
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
-
-    export_to.honeybee.wizard.CanvasController = CanvasController;
-})($(window));
+    return CanvasController;
+});

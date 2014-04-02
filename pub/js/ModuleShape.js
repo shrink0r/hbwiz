@@ -1,6 +1,9 @@
-(function($window, export_to)
-{
-    export_to = export_to || $window[0];
+define([
+    "jquery",
+    "kineticjs"
+], function($, Kinetic) {
+
+    "use strict";
 
     var MIN_WIDTH = 200;
     var MIN_HEIGHT = 100;
@@ -346,9 +349,6 @@
         }
     };
 
-    if (!export_to.honeybee) {
-        export_to.honeybee = { wizard: { } };
-    }
+    return ModuleShape;
 
-    export_to.honeybee.wizard.ModuleShape = ModuleShape;
-})($(window));
+});

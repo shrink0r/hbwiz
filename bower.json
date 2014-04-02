@@ -5,7 +5,8 @@
   "ignore": [],
   "dependencies": {
     "kineticjs": "v5.1.0",
-    "foundation": "5.2.1"
+    "foundation": "5.2.1",
+    "requirejs": "2.1.11"
   },
   "devDependencies": {}
 }
