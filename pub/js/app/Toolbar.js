@@ -45,7 +45,7 @@ define([
 
         for (i; i < css_classes.length && !toolbar_type; i++) {
             matches = css_classes[i].match(/^toolbar\-type\-(.+)/);
-            if (matches.length > 0) {
+            if (matches && matches.length > 0) {
                 toolbar_type = matches[1];
                 toolbar_class = css_classes[i];
             }
@@ -77,7 +77,7 @@ define([
 
                     for (i; i < css_classes.length && !item_type; i++) {
                         matches = css_classes[i].match(/^item\-type\-(.+)/);
-                        if (matches.length > 0) {
+                        if (matches && matches.length > 0) {
                             item_type = matches[1];
                         }
                     }

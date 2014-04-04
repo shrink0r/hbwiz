@@ -56,7 +56,7 @@ define([
             toolbar_options = this.options.toolbars[toolbar_name];
             $.getJSON(
                 toolbar_options.items,
-                createToolbarCallback(toolbar_options.selector, toolbar_name)
+                createToolbarCallback(toolbar_name, toolbar_options.selector)
             );
         }
     };
