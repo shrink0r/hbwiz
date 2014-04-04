@@ -1,7 +1,7 @@
 define([
     "jquery",
     "foundation",
-    "Application"
+    "app/Application"
 ], function($, foundation, Application) {
 
     "use strict";
