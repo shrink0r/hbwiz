@@ -6,9 +6,6 @@ define([
 
     "use strict";
 
-    // init zurb foundation
-    $(document).foundation();
-
     // then setup the honeybee module wizard application
     new Application(
         $(document.body),
