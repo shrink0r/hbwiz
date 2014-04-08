@@ -1,37 +1,22 @@
 define([
     "jquery",
-    "foundation",
     "app/Application"
-], function($, foundation, Application) {
+], function($, Application) {
 
     "use strict";
 
-    // then setup the honeybee module wizard application
+    var cache_buster = "?cb=" + (new Date()).getTime();
+
     new Application(
         $(document.body),
         {
             'canvas_stage': '#kjs-stage-container',
-            'toolbars': {
-                'modules': {
-                    'selector': '.toolbar-type-modules',
-                    'items': 'data/Modules.json'
-                },
-                'fields': {
-                    'selector': '.toolbar-type-fields',
-                    'items': 'data/Fields.json'
-                }
-            },
-            'forms': {
-                'field': {
-                    'label': 'Field Properties',
-                    'selector': '.field-properties-form'
-                },
-                'module': {
-                    'label': 'Module Properties',
-                    'selector': '.module-properties-form'
-                }
+            'data_urls': {
+                'modules': 'data/Modules.json' + cache_buster,
+                'fields': 'data/Fields.json' + cache_buster
             }
-        }
+        },
+        function() { console.log('Application loaded/ready!'); }
     );
 
 }, function (err) {

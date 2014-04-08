@@ -20,7 +20,8 @@ define([
         this.options.stroke_width = this.options.stroke_width || 1;
         this.field_data = {
             name: 'no name',
-            type: this.options.label,
+            type: this.options.type,
+            label: this.options.label,
             description: this.options.description,
             options: {}
         };
@@ -33,16 +34,18 @@ define([
 
     FieldShape.prototype.constructor = FieldShape;
 
-    FieldShape.prototype.setName = function(name)
+    FieldShape.prototype.setProperty = function(property_name, value)
     {
-        this.field_data.name = name;
-        var label = this.shape.find('.name_label')[0];
-        label.setText(this.field_data.name);
+        this.field_data[property_name] = value;
+
+        if (property_name === 'name') {
+            this.shape.find('.name_label')[0].setText(value);
+        }
     };
 
-    FieldShape.prototype.setDescription = function(description)
+    FieldShape.prototype.setOption = function(name, value)
     {
-        this.field_data.description = description;
+        this.field_data.options[name] = value;
     };
 
     FieldShape.prototype.select = function()
@@ -50,6 +53,13 @@ define([
         this.selected = true;
         var rectangle = this.shape.find('.main_shape')[0];
         rectangle.setStrokeWidth(3);
+    };
+
+    FieldShape.prototype.deselect = function()
+    {
+        this.selected = false;
+        var rectangle = this.shape.find('.main_shape')[0];
+        rectangle.setStrokeWidth(1);
     };
 
     FieldShape.prototype.inheritModuleBounds = function(module_shape, field_index)
@@ -67,13 +77,6 @@ define([
         type_label.setWidth(label_width);
         type_label.setX(label_width);
         name_label.setWidth(label_width);
-    };
-
-    FieldShape.prototype.deselect = function()
-    {
-        this.selected = false;
-        var rectangle = this.shape.find('.main_shape')[0];
-        rectangle.setStrokeWidth(1);
     };
 
     FieldShape.prototype.destroy = function()
@@ -112,6 +115,7 @@ define([
             } else {
                 that.options.onDeselected(that);
             }
+            return false;
         });
 
         group.add(rectangle);

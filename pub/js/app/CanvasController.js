@@ -1,9 +1,9 @@
 define([
     "jquery",
     "kineticjs",
-    "app/ShapeConnection",
-    "app/ModuleShape",
-    "app/FieldShape"
+    "app/shape/ShapeConnection",
+    "app/shape/ModuleShape",
+    "app/shape/FieldShape"
 ], function($, Kinectic, ShapeConnection, ModuleShape, FieldShape) {
 
     "use strict";
@@ -32,8 +32,6 @@ define([
     CanvasController.prototype.initCanvas = function()
     {
         var that = this;
-        this.adjustStageContainerSize();
-        $(window).resize(this.adjustStageContainerSize);
 
         // initialize our stage
         this.stage = new Kinetic.Stage({
@@ -71,13 +69,6 @@ define([
                 }
             }
         });
-    };
-
-    CanvasController.prototype.adjustStageContainerSize = function()
-    {
-        var stage_height = $(window).height() - this.$element.offset().top - 75;
-        stage_height = stage_height > 300 ? stage_height : 300;
-        this.$element.height(stage_height);
     };
 
     CanvasController.prototype.removeSelectedShape = function()
@@ -206,16 +197,16 @@ define([
         if (wizard_shape instanceof ModuleShape) {
             if (this.active_shape) {
                 if (this.active_field &&
-                    this.active_field.field_data.type === 'Aggregate' &&
-                    wizard_shape.module_data.type === 'AggregateModule'
+                    this.active_field.field_data.type === 'aggregate' &&
+                    wizard_shape.module_data.type === 'aggregate'
                 ) {
-                    this.connectAggregate(this.active_shape, wizard_shape, this.active_field);
+                    this.connectShapes(this.active_shape, wizard_shape, this.active_field);
                     return;
                 } else if (this.active_field &&
-                    this.active_field.field_data.type === 'Reference' &&
-                    wizard_shape.module_data.type === 'RootModule'
+                    this.active_field.field_data.type === 'reference' &&
+                    wizard_shape.module_data.type === 'root'
                 ) {
-                    this.connectReference(this.active_shape, wizard_shape, this.active_field);
+                    this.connectShapes(this.active_shape, wizard_shape, this.active_field);
                     return;
                 } else {
                     this.onShapeDeselected(this.active_shape);
@@ -225,7 +216,7 @@ define([
             this.active_shape.select();
         } else {
             if (this.active_field) {
-                this.active_field.deselect();
+                this.onShapeDeselected(this.active_field);
             }
             this.active_field = wizard_shape;
             this.active_field.select();
@@ -243,8 +234,12 @@ define([
         this.layers.main.draw();
     };
 
-    CanvasController.prototype.connectAggregate = function(source, target, field)
+    CanvasController.prototype.connectShapes = function(source, target, field)
     {
+        if (source.hasConnection(target, field)) {
+            return;
+        }
+
         var connection = new ShapeConnection(
             source,
             target,
@@ -263,28 +258,32 @@ define([
         this.layers.main.draw();
     };
 
-    CanvasController.prototype.connectReference = function(source_shape, target_shape, field_shape)
-    {
-        alert("connect " + source_shape.module_data.name + " with " + target_shape.module_data.name);
-    };
-
     CanvasController.prototype.onShapeDeselected = function(wizard_shape)
     {
         if (wizard_shape instanceof ModuleShape) {
+            if (this.active_field) {
+                this.deselectField(this.active_field);
+            }
+
             if (this.active_shape === wizard_shape) {
                 this.active_shape.deselect();
+                this.active_shape = null;
+                this.options.onShapeDeselected(wizard_shape);
             }
-            this.active_shape = null;
+        } else {
+            this.deselectField(wizard_shape);
         }
-
-        if (this.active_field) {
-            this.active_field.deselect();
-            this.options.onShapeDeselected(this.active_field);
-            this.active_field = null;
-        }
-        this.options.onShapeDeselected(wizard_shape);
 
         this.layers.main.draw();
+    };
+
+    CanvasController.prototype.deselectField = function(field_shape)
+    {
+        if (this.active_field === field_shape) {
+            this.active_field.deselect();
+            this.active_field = null;
+            this.options.onShapeDeselected(field_shape);
+        }
     };
 
     return CanvasController;

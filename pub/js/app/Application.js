@@ -2,25 +2,44 @@ define([
     "jquery",
     "app/CanvasController",
     "app/Toolbar",
-    "app/ModuleForm",
-    "app/ModuleShape",
-    "app/FieldForm",
-    "app/FieldShape"
-], function($, CanvasController, Toolbar, ModuleForm, ModuleShape, FieldForm, FieldShape) {
+    "app/form/ModuleForm",
+    "app/form/FieldForm",
+    "app/shape/ModuleShape",
+    "app/shape/FieldShape",
+    "tpl!templates/forms/module",
+    "tpl!templates/forms/field"
+], function(
+    $, CanvasController, Toolbar,
+    ModuleForm, FieldForm,
+    ModuleShape, FieldShape,
+    module_form_tpl, field_form_tpl
+) {
 
     "use strict";
 
-    var Application = function(element, options)
+    var Application = function(element, options, ready_callback)
     {
+        var that = this;
+        var noop = function() {};
+        var ready_trigger = null;
+
         this.$element = $(element);
         this.options = $.extend({}, options || {});
+
         this.canvas_controller = null;
         this.toolbars = {};
         this.forms = {};
 
         this.canvas_controller = this.createCanvasController();
-        this.createToolbars();
-        this.createForms();
+
+        ready_trigger = function() {
+            if (that.forms.module && that.forms.field) {
+                (ready_callback || noop)();
+            }
+        };
+
+        this.initModules(ready_trigger);
+        this.initFields(ready_trigger);
     };
 
     Application.prototype.constructor = Application;
@@ -36,50 +55,67 @@ define([
         );
     };
 
-    Application.prototype.createToolbars = function()
+    Application.prototype.initModules = function(ready_callback)
     {
-        var that = this, toolbar_name, toolbar_options;
-        var createToolbarCallback = function(name, css_selector) {
-            return function(data) {
-                that.toolbars[name] = new Toolbar(
-                    css_selector,
+        var that = this;
+        var module_key = null;
+        var module_data = null;
+
+        $.getJSON(this.options.data_urls.modules, function(modules) {
+            that.toolbars.module = new Toolbar(
+                '.toolbar-type-modules',
+                modules,
+                { name: 'modules', onItemDropped: that.onToolbarItemDropped.bind(that) }
+            );
+
+            that.forms.module = {};
+
+            for (module_key in modules) {
+                module_data = modules[module_key];
+                module_data.name = module_key;
+                console.log(module_data);
+                that.forms.module[module_key] = new ModuleForm(
+                    module_form_tpl(module_data),
                     {
-                        name: name,
-                        items: data,
-                        onItemDropped: that.onToolbarItemDropped.bind(that)
+                        name: 'module',
+                        onFieldChanged: that.onFormFieldChanged.bind(that),
+                        container: '.forms-panel'
                     }
                 );
-            };
-        };
+            }
 
-        for (toolbar_name in this.options.toolbars) {
-            toolbar_options = this.options.toolbars[toolbar_name];
-            $.getJSON(
-                toolbar_options.items,
-                createToolbarCallback(toolbar_name, toolbar_options.selector)
-            );
-        }
+            ready_callback();
+        });
     };
 
-    Application.prototype.createForms = function()
+    Application.prototype.initFields = function(ready_callback)
     {
-        var that = this, form_name, form_options, form;
-        var onFormFieldChanged = this.onFormFieldChanged.bind(this);
-        for (form_name in this.options.forms) {
-            form_options = this.options.forms[form_name];
-            if (form_name == 'module') {
-                form = new ModuleForm(
-                    $(form_options.selector),
-                    { name: form_name, onFieldChanged: onFormFieldChanged }
-                );
-            } else {
-                form = new FieldForm(
-                    $(form_options.selector),
-                    { name: form_name, onFieldChanged: onFormFieldChanged }
+        var that = this;
+
+        $.getJSON(this.options.data_urls.fields, function(fields) {
+            var field_key = null;
+
+            that.toolbars.field = new Toolbar(
+                '.toolbar-type-fields',
+                fields,
+                { name: 'fields', onItemDropped: that.onToolbarItemDropped.bind(that) }
+            );
+
+            that.forms.field = {};
+
+            for (field_key in fields) {
+                that.forms.field[field_key] = new FieldForm(
+                    field_form_tpl(fields[field_key]),
+                    {
+                        name: 'field',
+                        onFieldChanged: that.onFormFieldChanged.bind(that),
+                        container: '.forms-panel'
+                    }
                 );
             }
-            this.forms[form_name] = form;
-        }
+
+            ready_callback();
+        });
     };
 
     Application.prototype.onFormFieldChanged = function($input, name)
@@ -94,25 +130,36 @@ define([
 
     Application.prototype.onCanvasShapeSelected = function(canvas_shape)
     {
+        var shape_type = null;
+
         if (canvas_shape instanceof ModuleShape) {
-            this.forms.module.show(canvas_shape);
-            if (canvas_shape.module_data.type === 'RootModule') {
+            shape_type = canvas_shape.module_data.type;
+            this.forms.module[shape_type].show(canvas_shape);
+
+            if (canvas_shape.module_data.type === 'root') {
                 $('.show-schema').show();
             }
         } else {
-            this.forms.field.show(canvas_shape);
+            shape_type = canvas_shape.field_data.type;
+            this.forms.field[shape_type].show(canvas_shape);
         }
     };
 
     Application.prototype.onCanvasShapeDeselected = function(canvas_shape)
     {
+
+        var shape_type = null;
+
         if (canvas_shape instanceof ModuleShape) {
-            this.forms.module.hide(canvas_shape);
-            if (canvas_shape.module_data.type === 'RootModule') {
+            shape_type = canvas_shape.module_data.type;
+            this.forms.module[shape_type].hide(canvas_shape);
+
+            if (canvas_shape.module_data.type === 'root') {
                 $('.show-schema').hide();
             }
         } else {
-            this.forms.field.hide(canvas_shape);
+            shape_type = canvas_shape.field_data.type;
+            this.forms.field[shape_type].hide(canvas_shape);
         }
     };
 

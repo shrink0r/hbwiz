@@ -4,33 +4,34 @@ define([
 
     "use strict";
 
-    var Toolbar = function(element, options)
+    var Toolbar = function(element, items, options)
     {
         this.$element = $(element);
         this.options = $.extend({}, options || {});
-        this.options.items = options.items || {};
 
         if (!this.options.name) {
             throw "Missing 'name' option upon Toolbar initialization.";
         }
 
-        this.initItems();
+        this.items = this.initItems(items);
         this.initEvents();
     };
 
     Toolbar.prototype.constructor = Toolbar;
 
-    Toolbar.prototype.initItems = function()
+    Toolbar.prototype.initItems = function(items_data)
     {
-        var item_key, item, $list_item;
-        for (item_key in this.options.items) {
-            item = this.options.items[item_key];
+        var items = {}, item_key, item, $list_item;
+        for (item_key in items_data) {
+            item = items_data[item_key];
             $list_item = $(
                 '<li class="toolbar-item item-type-'+item_key+'">'+item.label+'</li>'
             );
             item.$element = $list_item;
             this.$element.append($list_item);
         }
+
+        return items_data;
     };
 
     Toolbar.prototype.initEvents = function()
@@ -83,9 +84,8 @@ define([
                     }
 
                     that.options.onItemDropped({
-                        element: $dragging,
                         name: that.options.name,
-                        item: that.options.items[item_type],
+                        item: that.items[item_type],
                         coords: {x: e.pageX, y: e.pageY}
                     });
                 }

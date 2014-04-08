@@ -26,7 +26,7 @@ define([
         this.options.stroke_width = this.options.stroke_width || 1;
         this.module_data = {
             name:  this.options.label,
-            type: this.options.label,
+            type: this.options.type,
             description: this.options.description,
             options: {}
         };
@@ -50,6 +50,12 @@ define([
         if (index !== false) {
             this.connections.splice(index, 1);
         }
+    };
+
+    ModuleShape.prototype.hasConnection = function(connection)
+    {
+        // @todo implement, check against existing connection sources
+        return false;
     };
 
     ModuleShape.prototype.removeField = function(field_shape)
@@ -80,20 +86,22 @@ define([
         field_shape.inheritModuleBounds(main_shape, index);
     };
 
-    ModuleShape.prototype.setName = function(name)
+    ModuleShape.prototype.setProperty = function(property_name, value)
     {
-        this.module_data.name = name;
-        var label = this.shape.find('.main_label')[0];
-        if (this.options.type === 'aggregate') {
-            label.setText('<<'+this.module_data.name+'>>');
-        } else {
-            label.setText(this.module_data.name);
+        this.module_data[property_name] = value;
+
+        if (property_name === 'name') {
+            if (this.options.type === 'aggregate') {
+                this.shape.find('.main_label')[0].setText('<<'+this.module_data.name+'>>');
+            } else {
+                this.shape.find('.main_label')[0].setText(this.module_data.name);
+            }
         }
     };
 
-    ModuleShape.prototype.setDescription = function(description)
+    ModuleShape.prototype.setOption = function(name, value)
     {
-        this.module_data.description = description;
+        this.module_data.options[name] = value;
     };
 
     ModuleShape.prototype.destroy = function()
@@ -157,11 +165,10 @@ define([
             event.cancelBubble = true;
             if (!that.selected) {
                 that.options.onSelected(that);
-                return false;
             } else {
                 that.options.onDeselected(that);
-                return false;
             }
+            return false;
         }).on('dragmove', function() {
             for(var i = 0; i < that.connections.length; i++) {
                 that.connections[i].connect();

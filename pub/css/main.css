@@ -1,31 +1,109 @@
-.toolbar-panel h6
-{
+
+/**
+ * ----------------
+ * canvas container/stage
+ * ----------------
+ */
+.stage-container {
+    padding: 0;
+    height: 1200px;
+}
+
+
+/**
+ * ----------------
+ * toolbar
+ * ----------------
+ */
+.toolbar-panel h6 {
     border-bottom: 1px solid #b6edff;
     padding-bottom: 5px;
 }
 
-.show-schema
-{
-    display: none;
-}
-
-.toolbar-list
-{
+.toolbar-list {
 
 }
 
-.toolbar-item
-{
+.toolbar-item {
     cursor: pointer;
 }
 
-#kjs-stage-container
-{
-    padding: 0;
+
+/**
+ * ----------------
+ * forms
+ * ----------------
+ */
+.module-properties-form,
+.field-properties-form,
+.show-schema {
+    display: none;
 }
 
-.module-properties-form,
-.field-properties-form
-{
-    display: none;
+.module-properties-form .options-trigger,
+.field-properties-form .options-trigger {
+    display: inline-block;
+    margin: 5px 0 15px 0;
+}
+
+
+/**
+ * ----------------
+ * css3 3d flip (two faced/sided form)
+ * ----------------
+ */
+.flip-container {
+    position: relative;
+    margin: 10px auto;
+    z-index: 1;
+    -webkit-transition: all 0.3s linear;
+    -moz-transition: all 0.3s linear;
+    -o-transition: all 0.3s linear;
+    transition: all 0.3s linear;
+}
+
+.flip-container {
+    -webkit-perspective: 1000;
+    -moz-perspective: 1000;
+    -o-perspective: 1000;
+    -perspective: 1000;
+}
+
+.flip-card {
+    width: 100%;
+    height: 100%;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    -transform-style: preserve-3d;
+    -webkit-transition: all 0.3s linear;
+    -moz-transition: all 0.3s linear;
+    -o-transition: all 0.3s linear;
+    transition: all 0.3s linear;
+}
+
+.flip-container.flip .flip-card {
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+}
+
+.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -o-backface-visibility: hidden;
+    -backface-visibility: hidden;
+}
+
+.face.back{
+    display: block;
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+    -transform: rotateY(180deg);
+    box-sizing: border-box;
 }

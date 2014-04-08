@@ -2,21 +2,98 @@
     "text": {
         "type": "text",
         "label": "Text",
-        "description": "Holds single textual data."
+        "description": "Holds single textual data.",
+        "options": {
+            "mandatory": {
+                "type": "boolean",
+                "default": false,
+                "placeholder": "true or false",
+                "description": "Defines if data for this field MUST be provided."
+            },
+            "min": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the min. length that a text MUST have."
+            },
+            "max": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the max. length that a text SHALL have."
+            }
+        }
     },
     "textarea": {
         "type": "textarea",
         "label": "Textarea",
-        "description": "Holds multiline and rich textual data."
+        "description": "Holds multiline and rich textual data.",
+        "options": {
+            "mandatory": {
+                "type": "boolean",
+                "default": false,
+                "placeholder": "true or false",
+                "description": "Defines if data for this field MUST be provided."
+            },
+            "min": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the min. length that a text MUST have."
+            },
+            "max": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the max. length that a text SHALL have."
+            }
+        }
     },
     "reference": {
         "type": "reference",
         "label": "Reference",
-        "description": "Holds references to documents of other modules."
+        "description": "Holds references to documents of other modules.",
+        "options": {
+            "mandatory": {
+                "type": "boolean",
+                "default": false,
+                "placeholder": "true or false",
+                "description": "Defines if data for this field MUST be provided."
+            },
+            "enabled_inline_create": {
+                "type": "boolean",
+                "placeholder": "true or false",
+                "description": "When true you MAY create reference documents during input."
+            },
+            "min": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the min. number of references that MUST be provided."
+            },
+            "max": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the max number of references that SHALL be provided."
+            }
+        }
     },
     "aggregate": {
-        "type": "textarea",
+        "type": "aggregate",
         "label": "Aggregate",
-        "description": "Allows to nest module definitions and thus structure your data."
+        "description": "Allows to nest module definitions and thus structure your data.",
+        "options": {
+            "mandatory": {
+                "type": "boolean",
+                "default": false,
+                "placeholder": "true or false",
+                "description": "Defines if data for this field MUST be provided."
+            },
+            "min": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the min. number of aggregates that MUST be provided."
+            },
+            "max": {
+                "type": "number",
+                "placeholder": "0",
+                "description": "Defines the max number of aggregates that SHALL be provided."
+            }
+        }
     }
 }

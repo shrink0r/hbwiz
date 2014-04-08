@@ -1,0 +1,37 @@
+<form class="module-properties-form">
+    <div class="flip-container">
+        <div class="shadow flip-card">
+            <div class="front face">
+                <div class="callout panel">
+                    <h6>Module</h6>
+                    <i class="fi-wrench options-trigger"> 
+                        <a href="#options">Options</a>
+                    </i>
+                    <label>Name
+                        <input type="text" name="name" class="module-property" placeholder="Meaningfull module name." />
+                    </label>
+                    <label>Description
+                        <input type="text" name="description" class="module-property" placeholder="What's the module's purpose?" />
+                    </label>
+                </div>
+            </div>
+            <div class="back face center">
+                <div class="callout panel">
+                    <h6>Options</h6>
+                    <i class="fi-info options-trigger"> 
+                        <a href="#options">Module</a>
+                    </i>
+                    <% _.forEach(options, function(option, name) { %>
+                    <label class="option-root" title="<%- option.description %>"><%- name %>
+                        <% if (option.type === 'boolean') { %>
+                        <input type="checkbox" name="<%- name %>" class="module-option" />
+                        <% } else { %>
+                        <input type="text" name="<%- name %>" class="module-option" placeholder="<%- option.placeholder %>" />
+                        <% } %>
+                    </label>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

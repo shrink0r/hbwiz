@@ -1,0 +1,1 @@
+../../../bower_components/lodash-template-loader/loader.js

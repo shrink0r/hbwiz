@@ -1,0 +1,37 @@
+<form class="field-properties-form">
+    <div class="flip-container">
+        <div class="shadow flip-card">
+            <div class="front face">
+                <div class="callout panel">
+                    <h6>Field (${ label })</h6>
+                    <i class="fi-wrench options-trigger"> 
+                        <a href="#options">Options</a>
+                    </i>
+                    <label>Name
+                        <input type="text" name="name" class="field-property" placeholder="Meaningfull field name." />
+                    </label>
+                    <label>Description
+                        <input type="text" name="description" class="field-property" placeholder="What's the field's purpose?" />
+                    </label>
+                </div>
+            </div>
+            <div class="back face center">
+                <div class="callout panel">
+                    <h6>Options</h6>
+                    <i class="fi-info options-trigger"> 
+                        <a href="#options">Field</a>
+                    </i>
+                    <% _.forEach(options, function(option, name) { %>
+                    <label class="option-root" title="<%- option.description %>"><%- name %>
+                        <% if (option.type === 'boolean') { %>
+                        <input type="checkbox" name="<%- name %>" class="field-option" />
+                        <% } else { %>
+                        <input type="text" name="<%- name %>" class="field-option" placeholder="<%- option.placeholder %>" />
+                        <% } %>
+                    </label>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

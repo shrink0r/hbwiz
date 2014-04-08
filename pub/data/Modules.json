@@ -2,11 +2,55 @@
     "root": {
         "type": "root",
         "label": "RootModule",
-        "description": "Represents a top level module."
+        "description": "Represents a top level module.",
+        "options": {
+            "slug_pattern": {
+                "type": "string",
+                "placeholder": "{title}-{short_id}",
+                "description": "Holds the pattern used to generate document slugs."
+            },
+            "implementor": {
+                "type": "string",
+                "default": "\\Honeybee\\Core\\Domain\\Module\\Module",
+                "placeholder": "Fully\\Qualified\\ClassName",
+                "description": "Holds the base class that the generated module will inherit from."
+            },
+            "document_implementor": {
+                "type": "string",
+                "default": "\\Honeybee\\Core\\Domain\\Document\\Document",
+                "placeholder": "Fully\\Qualified\\ClassName",
+                "description": "Holds the base class that the generated document will inherit from."
+            },
+            "act_as_tree": {
+                "type": "boolean",
+                "default": false,
+                "placeholder": "true or false",
+                "description": "Defines if the module's data shall be organized as a tree."
+            },
+            "tree_label_field": {
+                "type": "string",
+                "placeholder": "title",
+                "description": "Defines the field to use when displaying documents within the tree."
+            }
+        }
     },
     "aggregate": {
         "type": "aggregate",
         "label": "AggregateModule",
-        "description": "Represents a nested/aggregate module."
+        "description": "Represents a nested/aggregate module.",
+        "options": {
+            "implementor": {
+                "type": "string",
+                "default": "\\Honeybee\\Core\\Domain\\Module\\Module",
+                "placeholder": "Fully\\Qualified\\ClassName",
+                "description": "Holds the base class that the generated module will inherit from."
+            },
+            "document_implementor": {
+                "type": "string",
+                "default": "\\Honeybee\\Core\\Domain\\Document\\Document",
+                "placeholder": "Fully\\Qualified\\ClassName",
+                "description": "Holds the base class that the generated document will inherit from."
+            }
+        }
     }
 }

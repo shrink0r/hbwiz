@@ -6,7 +6,10 @@
   "dependencies": {
     "kineticjs": "v5.1.0",
     "foundation": "5.2.1",
-    "requirejs": "2.1.11"
+    "foundation-icon-fonts": "master",
+    "requirejs": "2.1.11",
+    "lodash-amd": "2.4.1",
+    "requirejs-text": "2.0.10"
   },
   "devDependencies": {}
 }

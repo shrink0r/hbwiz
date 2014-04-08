@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Honeybee | Module Wizard</title>
         <link rel="stylesheet" href="css/libs/foundation.css" />
+        <link rel="stylesheet" href="css/libs/foundation-icons.css" />
         <link rel="stylesheet" href="css/main.css" />
         <script src="js/libs/modernizr.js"></script>
     </head>
@@ -36,33 +37,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="large-12 columns">
-
-                        <form class="module-properties-form">
-                            <div class="callout panel">
-                                <h6>Module Properties</h6>
-                                <label>Name
-                                    <input type="text" class="input-module-name" placeholder="Meaningfull module name." />
-                                </label>
-                                <label>Description
-                                    <input type="text" class="input-module-description" placeholder="What's the module's purpose?" />
-                                </label>
-                            </div>
-                        </form>
-
-                        <form class="field-properties-form">
-                            <div class="callout panel">
-                                <h6>Field Properties</h6>
-                                <label>Name
-                                    <input type="text" class="input-field-name" placeholder="Meaningfull field name." />
-                                </label>
-                                <label>Description
-                                    <input type="text" class="input-field-description" placeholder="What's the field's purpose?" />
-                                </label>
-                            </div>
-                        </form>
-
-                    </div>
+                    <div class="large-12 columns forms-panel"></div>
                 </div>
 
                 <div class="row show-schema">
@@ -79,7 +54,7 @@
                 <h5>Canvas</h5>
                 <div class="row">
                     <div class="large-12 columns">
-                        <div class="callout panel" id="kjs-stage-container" />
+                        <div class="callout panel stage-container" id="kjs-stage-container" />
                     </div>
                 </div>
             </div>
@@ -89,17 +64,20 @@
         <script data-main="js/Main" src="js/libs/require.js"></script>
         <script>
           requirejs.config({
+            baseUrl: "js",
             urlArgs: "cb=" + (new Date()).getTime(),
+            map: { "*": { "lodash": "libs/lodash/main" } },
             paths: {
                 jquery: 'libs/jquery',
                 foundation: 'libs/foundation',
-                kineticjs: 'libs/kinetic'
+                kineticjs: 'libs/kinetic',
+                tpl: "libs/loader"
             },
             shim: {
                 foundation: {
                     exports: 'foundation',
                     deps: ['jquery']
-                },
+                }
              }
         });
         </script>
