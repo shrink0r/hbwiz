@@ -5,25 +5,27 @@ define([
 
     "use strict";
 
-    var MIN_WIDTH = 200;
-    var MIN_HEIGHT = 100;
-    var FIELD_HEIGHT = 30;
-
     var ModuleShape = function(layer, name, options)
     {
         var noop = function() {};
         this.name = name;
         this.layer = layer;
         this.fields = [];
+        this.anchors = {};
 
         this.options = $.extend({}, options || {});
         this.options.onSelected = this.options.onSelected || noop;
         this.options.onDeselected = this.options.onDeselected || noop;
-        this.options.width = this.options.width || MIN_WIDTH;
-        this.options.height = this.options.height || MIN_HEIGHT;
+        this.options.width = this.options.width || 200;
+        this.options.height = this.options.height || 100;
+        this.options.min_width = this.options.min_width || 200;
+        this.options.min_height = this.options.min_height || 100;
+        this.options.handle_size = this.options.handle_size || 5;
         this.options.fill = this.options.fill || '#b6edff';
         this.options.stroke = this.options.stroke || '#83bacc';
         this.options.stroke_width = this.options.stroke_width || 1;
+        this.options.field_height = this.options.field_height || 30;
+
         this.module_data = {
             name:  this.options.label,
             type: this.options.type,
@@ -32,7 +34,7 @@ define([
         };
 
         this.stage = layer.getStage();
-        this.shape = this.build(this.options);
+        this.shape = this.build();
         this.selected = false;
         this.connections = [];
     };
@@ -48,13 +50,24 @@ define([
     {
         var index = this.connections.indexOf(connection);
         if (index !== false) {
+console.log("remove conn", index);
             this.connections.splice(index, 1);
         }
     };
 
-    ModuleShape.prototype.hasConnection = function(connection)
+    ModuleShape.prototype.hasConnection = function(target, field)
     {
-        // @todo implement, check against existing connection sources
+        var i = 0;
+        var cur_connection = null;
+        for (; i < this.connections.length; i++) {
+            cur_connection = this.connections[i];
+            if (
+                cur_connection.target === target &&
+                cur_connection.field === field
+            ) {
+                return true;
+            }
+        }
         return false;
     };
 
@@ -66,18 +79,54 @@ define([
             for (var i = 0; i < this.fields.length; i++) {
                 this.adoptField(this.fields[i], i);
             }
+            this.refreshMinHeight();
         }
     };
 
     ModuleShape.prototype.addField = function(field_shape)
     {
+        var options = this.options;
+
         field_shape.options.onSelected = this.onFieldSelected.bind(this);
-        field_shape.options.onDeselected = this.options.onDeselected;
+        field_shape.options.onDeselected = options.onDeselected;
+
         this.fields.push(field_shape);
         this.shape.add(field_shape.shape);
         this.adoptField(field_shape, this.fields.length - 1);
-        MIN_HEIGHT = FIELD_HEIGHT + (this.fields.length + 1) * FIELD_HEIGHT;
+
         this.onFieldSelected(field_shape);
+
+        this.refreshMinHeight();
+    };
+
+    ModuleShape.prototype.refreshMinHeight = function()
+    {
+        var options = this.options;
+        var main_shape = this.shape.find('.main_shape')[0];
+        var pos = main_shape.getPosition();
+
+        options.min_height = options.field_height + (this.fields.length + 1) * options.field_height;
+
+        if (main_shape.getHeight() < options.min_height) {
+            main_shape.setHeight(options.min_height);
+
+            this.anchors.nw.setPosition({
+                x: pos.x,
+                y: pos.y
+            });
+            this.anchors.ne.setPosition({
+                x: pos.x + main_shape.getWidth(),
+                y: pos.y
+            });
+            this.anchors.sw.setPosition({
+                x: pos.x,
+                y: pos.y + main_shape.getHeight()
+            });
+            this.anchors.se.setPosition({
+                x: pos.x + main_shape.getWidth(),
+                y: pos.y + main_shape.getHeight()
+            });
+        }
     };
 
     ModuleShape.prototype.adoptField = function(field_shape, index)
@@ -119,8 +168,9 @@ define([
         }
     };
 
-    ModuleShape.prototype.build = function(options)
+    ModuleShape.prototype.build = function()
     {
+        var options = this.options;
         var that = this;
         var stage_h = this.stage.height();
         var stage_w = this.stage.width();
@@ -141,13 +191,16 @@ define([
             y: options.y || 20,
             draggable: true,
             dragBoundFunc: function(pos) {
+                var rect_pos = rectangle.getPosition();
                 var shape_w = rectangle.width();
                 var shape_h = rectangle.height();
+                var x = pos.x + rect_pos.x;
+                var y = pos.y + rect_pos.y;
 
-                if (pos.x <= 0) { pos.x = 0; }
-                if (pos.x + shape_w >= stage_w) { pos.x = stage_w - shape_w; }
-                if (pos.y <= 0) { pos.y = 0; }
-                if (pos.y + shape_h >= stage_h) { pos.y = stage_h - shape_h; }
+                if (x - options.handle_size <= 0) { pos.x = 0 - rect_pos.x + options.handle_size; }
+                if (x + options.handle_size + shape_w >= stage_w) { pos.x = stage_w - shape_w - rect_pos.x - options.handle_size; }
+                if (y - options.handle_size <= 0) { pos.y = 0 - rect_pos.y + options.handle_size; }
+                if (y + options.handle_size + shape_h >= stage_h) { pos.y = stage_h - shape_h - rect_pos.y - options.handle_size; }
 
                 return { x: pos.x, y: pos.y };
             }
@@ -193,11 +246,10 @@ define([
         });
         group.add(label);
 
-        this.addAnchor(group, 0, 0, 'nw');
-        this.addAnchor(group, MIN_WIDTH, 0, 'ne');
-
-        this.addAnchor(group, 0, MIN_HEIGHT, 'sw');
-        this.addAnchor(group, MIN_WIDTH, MIN_HEIGHT, 'se');
+        this.anchors.nw = this.addAnchor(group, 0, 0, 'nw');
+        this.anchors.ne = this.addAnchor(group, this.options.min_width, 0, 'ne');
+        this.anchors.sw = this.addAnchor(group, 0, this.options.min_height, 'sw');
+        this.anchors.se = this.addAnchor(group, this.options.min_width, this.options.min_height, 'se');
 
         group.on('dragstart', function() {
             this.moveToTop();
@@ -231,110 +283,102 @@ define([
             stroke: '#ababab',
             fill: '#efefef',
             strokeWidth: 1,
-            radius: 5,
+            radius: this.options.handle_size,
             name: name,
             draggable: true,
             dragOnTop: false
         });
 
-        anchor.on('dragmove', function() {
-            var layer = this.getLayer();
-            that.update(this);
-            layer.draw();
-        });
-        anchor.on('mousedown touchstart', function(event) {
-            event.cancelBubble = true;
-            group.setDraggable(false);
-            this.moveToTop();
-        });
-        anchor.on('dragend', function() {
-            var layer = this.getLayer();
-            group.setDraggable(true);
-            layer.draw();
-        });
-        // add hover styling
         anchor.on('mouseover', function(event) {
             event.cancelBubble = true;
             var layer = this.getLayer();
             document.body.style.cursor = name + '-resize';
             this.setOpacity(1);
             layer.draw();
-        });
-        anchor.on('mouseout', function() {
+        }).on('mousedown touchstart', function(event) {
+            event.cancelBubble = true;
+            this.moveToTop();
+        }).on('dragmove', function() {
+            var layer = this.getLayer();
+            that.update(this);
+            layer.draw();
+        }).on('dragend', function() {
+            var layer = this.getLayer();
+            layer.draw();
+        }).on('mouseout', function() {
             var layer = this.getLayer();
             document.body.style.cursor = 'default';
             this.setOpacity(0.5);
             layer.draw();
         });
-        anchor.on('mouseup', function() {
-            group.setDraggable(true);
-        });
 
         group.add(anchor);
+
+        return anchor;
     };
 
-    ModuleShape.prototype.update = function(active_anchor)
+    ModuleShape.prototype.update = function(moving_anchor)
     {
-        var group = active_anchor.getParent();
+        var group = this.shape;
 
-        var top_left = group.find('.nw')[0];
-        var top_right = group.find('.ne')[0];
-        var bottom_right = group.find('.se')[0];
-        var bottom_left = group.find('.sw')[0];
+        var top_left = this.anchors.nw;
+        var top_right = this.anchors.ne;
+        var bottom_right = this.anchors.se;
+        var bottom_left = this.anchors.sw;
         var shape = group.find('.main_shape')[0];
         var label = group.find('.main_label')[0];
 
-        var anchor_x = active_anchor.x();
-        var anchor_y = active_anchor.y();
+        var anchor_x = moving_anchor.x();
+        var anchor_y = moving_anchor.y();
 
         // update anchor positions
-        switch (active_anchor.name()) {
+        switch (moving_anchor.name()) {
             case 'nw':
                 top_right.setY(anchor_y);
                 bottom_left.setX(anchor_x);
-                if (anchor_x > top_right.getX() - MIN_WIDTH) {
-                    active_anchor.setX(top_right.getX() - MIN_WIDTH);
-                    bottom_left.setX(top_right.getX() - MIN_WIDTH);
+                if (anchor_x > top_right.getX() - this.options.min_width) {
+                    moving_anchor.setX(top_right.getX() - this.options.min_width);
+                    bottom_left.setX(top_right.getX() - this.options.min_width);
                 }
-                if (anchor_y > bottom_left.getY() - MIN_HEIGHT) {
-                    active_anchor.setY(bottom_left.getY() - MIN_HEIGHT);
-                    top_right.setY(bottom_left.getY() - MIN_HEIGHT);
+                if (anchor_y > bottom_left.getY() - this.options.min_height) {
+                    moving_anchor.setY(bottom_left.getY() - this.options.min_height);
+                    top_right.setY(bottom_left.getY() - this.options.min_height);
                 }
                 break;
             case 'ne':
                 top_left.setY(anchor_y);
                 bottom_right.setX(anchor_x);
-                if (anchor_x < top_left.getX() + MIN_WIDTH) {
-                    active_anchor.setX(top_left.getX() + MIN_WIDTH);
-                    bottom_right.setX(top_left.getX() + MIN_WIDTH);
+                if (anchor_x < top_left.getX() + this.options.min_width) {
+                    moving_anchor.setX(top_left.getX() + this.options.min_width);
+                    bottom_right.setX(top_left.getX() + this.options.min_width);
                 }
-                if (anchor_y > bottom_left.getY() - MIN_HEIGHT) {
-                    active_anchor.setY(bottom_left.getY() - MIN_HEIGHT);
-                    top_left.setY(bottom_left.getY() - MIN_HEIGHT);
+                if (anchor_y > bottom_left.getY() - this.options.min_height) {
+                    moving_anchor.setY(bottom_left.getY() - this.options.min_height);
+                    top_left.setY(bottom_left.getY() - this.options.min_height);
                 }
                 break;
             case 'se':
                 bottom_left.setY(anchor_y);
                 top_right.setX(anchor_x);
-                if (anchor_x < bottom_left.getX() + MIN_WIDTH) {
-                    active_anchor.setX(bottom_left.getX() + MIN_WIDTH);
-                    top_right.setX(bottom_left.getX() + MIN_WIDTH);
+                if (anchor_x < bottom_left.getX() + this.options.min_width) {
+                    moving_anchor.setX(bottom_left.getX() + this.options.min_width);
+                    top_right.setX(bottom_left.getX() + this.options.min_width);
                 }
-                if (anchor_y < top_left.getY() + MIN_HEIGHT) {
-                    active_anchor.setY(top_left.getY() + MIN_HEIGHT);
-                    bottom_left.setY(top_left.getY() + MIN_HEIGHT);
+                if (anchor_y < top_left.getY() + this.options.min_height) {
+                    moving_anchor.setY(top_left.getY() + this.options.min_height);
+                    bottom_left.setY(top_left.getY() + this.options.min_height);
                 }
                 break;
             case 'sw':
                 bottom_right.setY(anchor_y);
                 top_left.setX(anchor_x);
-                if (anchor_x > top_right.getX() - MIN_WIDTH) {
-                    active_anchor.setX(top_right.getX() - MIN_WIDTH);
-                    top_left.setX(top_right.getX() - MIN_WIDTH);
+                if (anchor_x > top_right.getX() - this.options.min_width) {
+                    moving_anchor.setX(top_right.getX() - this.options.min_width);
+                    top_left.setX(top_right.getX() - this.options.min_width);
                 }
-                if (anchor_y < top_left.getY() + MIN_HEIGHT) {
-                    active_anchor.setY(top_left.getY() + MIN_HEIGHT);
-                    bottom_right.setY(top_left.getY() + MIN_HEIGHT);
+                if (anchor_y < top_left.getY() + this.options.min_height) {
+                    moving_anchor.setY(top_left.getY() + this.options.min_height);
+                    bottom_right.setY(top_left.getY() + this.options.min_height);
                 }
                 break;
         }

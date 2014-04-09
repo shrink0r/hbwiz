@@ -73,7 +73,6 @@ define([
             for (module_key in modules) {
                 module_data = modules[module_key];
                 module_data.name = module_key;
-                console.log(module_data);
                 that.forms.module[module_key] = new ModuleForm(
                     module_form_tpl(module_data),
                     {

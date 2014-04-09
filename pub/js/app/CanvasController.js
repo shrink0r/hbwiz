@@ -23,6 +23,7 @@ define([
         this.shapes = [];
         this.active_shape = null;
         this.active_field = null;
+        this.active_connection = null;
 
         this.initCanvas();
     };
@@ -64,7 +65,15 @@ define([
         $(document.body).keydown(function(keyup_event) {
             if (keyup_event.keyCode === 8) {
                 if (keyup_event.target.tagName !== 'INPUT') {
-                    that.removeSelectedShape();
+                    if (that.active_connection) {
+                        that.active_connection.source.removeConnection(that.active_connection);
+                        that.active_connection.target.removeConnection(that.active_connection);
+                        that.active_connection.line.remove();
+                        that.active_connection.capture_line.remove();
+                        that.layers.main.draw();
+                    } else {
+                        that.removeSelectedShape();
+                    }
                     return false;
                 }
             }
@@ -164,6 +173,7 @@ define([
     {
         var relative_offset = this.$element.offset();
         var coords = toolbar_item.coords;
+        var shape_pos;
         coords.x -= relative_offset.left;
         coords.y -= relative_offset.top;
 
@@ -172,12 +182,12 @@ define([
         for (; i < this.shapes.length && !found_shape; i++) {
             group = this.shapes[i].shape;
             main_shape = group.find('.main_shape')[0];
-
+            shape_pos = main_shape.getPosition();
             bounds = {
-                left: group.getX(),
-                right: group.getX() + main_shape.width(),
-                top: group.getY(),
-                bottom: group.getY() + main_shape.height()
+                left: group.getX() - shape_pos.x,
+                right: group.getX() - shape_pos.x + main_shape.width(),
+                top: group.getY() - shape_pos.y,
+                bottom: group.getY() - shape_pos.y + main_shape.height()
             };
 
             if (coords.x > bounds.left &&
@@ -194,6 +204,9 @@ define([
 
     CanvasController.prototype.onShapeSelected = function(wizard_shape)
     {
+        if (this.active_connection) {
+            this.onConnectionDeselected(this.active_connection);
+        }
         if (wizard_shape instanceof ModuleShape) {
             if (this.active_shape) {
                 if (this.active_field &&
@@ -229,8 +242,18 @@ define([
 
     CanvasController.prototype.onConnectionSelected = function(connection)
     {
-        connection.line.remove();
-        connection.capture_line.remove();
+        if (this.active_shape) {
+            this.onShapeDeselected(this.active_shape);
+        }
+        connection.select();
+        this.active_connection = connection;
+        this.layers.main.draw();
+    };
+
+    CanvasController.prototype.onConnectionDeselected = function(connection)
+    {
+        connection.deselect();
+        this.active_connection = null;
         this.layers.main.draw();
     };
 
@@ -244,7 +267,10 @@ define([
             source,
             target,
             field,
-            { onSelected: this.onConnectionSelected.bind(this) }
+            {
+                onSelected: this.onConnectionSelected.bind(this),
+                onDeselected: this.onConnectionDeselected.bind(this)
+            }
         );
 
         source.addConnection(connection);

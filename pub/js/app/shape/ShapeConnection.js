@@ -14,9 +14,11 @@ define([
         this.field = field;
         this.line = null;
         this.capture_line = null;
+        this.selected = false;
 
         this.options = $.extend({}, options || {});
         this.options.onSelected = this.options.onSelected || noop;
+        this.options.onDeselected = this.options.onDeselected || noop;
 
         this.init();
     };
@@ -52,10 +54,16 @@ define([
             that.line.getParent().draw();
         }).on('mouseout', function() {
             document.body.style.cursor = 'default';
-            that.line.setStrokeWidth(1);
-            that.line.getParent().draw();
+            if (that.line && !that.selected) {
+                that.line.setStrokeWidth(1);
+                that.line.getParent().draw();
+            }
         }).on('click', function() {
-            that.options.onSelected(that);
+            if (that.selected) {
+                that.options.onDeselected(that);
+            } else {
+                that.options.onSelected(that);
+            }
         });
     };
 
@@ -90,6 +98,18 @@ define([
 
         this.line.setPoints(points);
         this.capture_line.setPoints(points);
+    };
+
+    ShapeConnection.prototype.select = function()
+    {
+        this.selected = true;
+        this.line.setStrokeWidth(2);
+    };
+
+    ShapeConnection.prototype.deselect = function()
+    {
+        this.selected = false;
+        this.line.setStrokeWidth(1);
     };
 
     return ShapeConnection;
