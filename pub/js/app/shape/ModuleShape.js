@@ -8,6 +8,9 @@ define([
     var ModuleShape = function(layer, name, options)
     {
         var noop = function() {};
+        var module_options = {};
+        var option_name = null;
+
         this.name = name;
         this.layer = layer;
         this.fields = [];
@@ -26,11 +29,16 @@ define([
         this.options.stroke_width = this.options.stroke_width || 1;
         this.options.field_height = this.options.field_height || 30;
 
+        for (option_name in this.options.options) {
+            if (this.options.options[option_name].default) {
+                module_options[option_name] = this.options.options[option_name].default;
+            }
+        }
         this.module_data = {
             name:  this.options.label,
             type: this.options.type,
             description: this.options.description,
-            options: {}
+            options: module_options
         };
 
         this.stage = layer.getStage();
@@ -50,7 +58,6 @@ define([
     {
         var index = this.connections.indexOf(connection);
         if (index !== false) {
-console.log("remove conn", index);
             this.connections.splice(index, 1);
         }
     };

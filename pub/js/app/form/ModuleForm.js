@@ -12,11 +12,13 @@ define([
 
         this.options = $.extend({}, options || {});
         this.options.onFieldChanged = this.options.onFieldChanged || noop;
+        this.options.onSchemeViewDemanded = this.options.onSchemeViewDemanded || noop;
 
         this.$container = $(this.options.container);
         this.$input_name = this.$element.find('.input-module-name');
         this.$input_description = this.$element.find('.input-module-description');
         this.$option_trigger = this.$element.find('.options-trigger');
+        this.$scheme_trigger = this.$element.find('.scheme-trigger');
         this.$flip_wrapper = this.$element.find('.flip-container');
         this.current_shape = null;
 
@@ -35,6 +37,10 @@ define([
             that.$flip_wrapper.toggleClass('flip');
 
             that.adoptContentHeight();
+        });
+
+        this.$scheme_trigger.click(function() {
+            that.options.onSchemeViewDemanded();
         });
 
         this.$element.find('.module-property').change(function() {

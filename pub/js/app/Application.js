@@ -7,12 +7,16 @@ define([
     "app/shape/ModuleShape",
     "app/shape/FieldShape",
     "tpl!templates/forms/module",
-    "tpl!templates/forms/field"
+    "tpl!templates/forms/field",
+    "app/serializer/xml/ModuleSerializer",
+    "app/serializer/ModuleDataHolder",
+    "highlight",
 ], function(
     $, CanvasController, Toolbar,
     ModuleForm, FieldForm,
     ModuleShape, FieldShape,
-    module_form_tpl, field_form_tpl
+    module_form_tpl, field_form_tpl,
+    ModuleSerializer, ModuleDataHolder, hljs
 ) {
 
     "use strict";
@@ -40,6 +44,11 @@ define([
 
         this.initModules(ready_trigger);
         this.initFields(ready_trigger);
+
+        this.$element.find('.canvas-trigger').click(function() {
+            $('.module-schemes-panel').hide();
+            $('.canvas-panel').show();
+        });
     };
 
     Application.prototype.constructor = Application;
@@ -78,6 +87,7 @@ define([
                     {
                         name: 'module',
                         onFieldChanged: that.onFormFieldChanged.bind(that),
+                        onSchemeViewDemanded: that.onSchemeViewDemanded.bind(that),
                         container: '.forms-panel'
                     }
                 );
@@ -120,6 +130,29 @@ define([
     Application.prototype.onFormFieldChanged = function($input, name)
     {
         this.canvas_controller.layers.main.draw();
+    };
+
+    Application.prototype.onSchemeViewDemanded = function()
+    {
+        var highlighted_code = null;
+        var module_data = null;
+        var serializer = null;
+
+        if (!this.canvas_controller.active_shape) {
+            return false;
+        }
+
+        module_data = ModuleDataHolder.createFromShape(
+            this.canvas_controller.active_shape
+        );
+
+        serializer = new ModuleSerializer();
+        highlighted_code = hljs.highlight('xml', serializer.asString(module_data));
+
+        $('.xml-source-display').html('<pre class="xml-code">'+ highlighted_code.value + '</pre>');
+        $('.canvas-panel').hide();
+        $('.module-schemes-panel .current_module_label').text(module_data.module.name);
+        $('.module-schemes-panel').show();
     };
 
     Application.prototype.onToolbarItemDropped = function(dropped_item)

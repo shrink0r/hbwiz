@@ -5,8 +5,9 @@ define([
 
     "use strict";
 
+    // url parameter used to make sure our templates aren't cached atm
     var cache_buster = "?cb=" + (new Date()).getTime();
-
+    // create a new application instance, hence start the hb-module-wizard
     new Application(
         $(document.body),
         {

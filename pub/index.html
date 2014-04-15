@@ -4,22 +4,27 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
         <title>Honeybee | Module Wizard</title>
+
         <link rel="stylesheet" href="css/libs/foundation.css" />
         <link rel="stylesheet" href="css/libs/foundation-icons.css" />
+        <link rel="stylesheet" href="css/libs/highlight/default.css" />
+        <link rel="stylesheet" href="css/libs/highlight/github.css" />
         <link rel="stylesheet" href="css/main.css" />
+
         <script src="js/libs/modernizr.js"></script>
     </head>
 
     <body>
 
-        <div class="row" style="max-width: 85rem">
+        <div class="row" style="max-width: 100rem">
             <div class="large-12 columns">
                 <h1>Honeybee Module Wizard</h1>
             </div>
         </div>
 
-        <div class="row" style="max-width: 85rem">
+        <div class="row" style="max-width: 100rem">
             <div class="large-3 medium-3 columns toolbar-panel">
 
                 <h5>Toolbar</h5>
@@ -35,30 +40,42 @@
                         </div>
                     </div>
                 </div>
-
+                <h5>Properties</h5>
                 <div class="row">
                     <div class="large-12 columns forms-panel"></div>
-                </div>
-
-                <div class="row show-schema">
-                    <div class="large-12 columns">
-                        <div class="callout panel">
-                            <button>Show Scheme</button>
-                        </div>
-                    </div>
                 </div>
 
             </div>
 
             <div class="large-9 medium-9 columns">
-                <h5>Canvas</h5>
-                <div class="row">
-                    <div class="large-12 columns">
-                        <div class="callout panel">
-                            <div class="stage-container" id="kjs-stage-container" />
+
+                <div class="canvas-panel">
+                    <h5>Canvas</h5>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <div class="callout panel">
+                                <div class="stage-container" id="kjs-stage-container"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="module-schemes-panel">
+                    <h5>module.xml for <span class="current_module_label"></span>
+                        <a href="#canvas-panel" class="canvas-trigger" title="Back to canvas view">
+                            Back to canvas view
+                            <i class="fi-x"></i>
+                        </a>
+                    </h5>
+                    <div class="row">
+                        <div class="large-12 columns">
+                            <div class="callout panel">
+                                <div class="xml-source-display"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -73,12 +90,20 @@
                 jquery: 'libs/jquery',
                 foundation: 'libs/foundation',
                 kineticjs: 'libs/kinetic',
-                tpl: "libs/loader"
+                highlight: 'libs/highlight',
+                tpl: "libs/loader",
+                vkbeautify: "libs/vkbeautify"
             },
             shim: {
                 foundation: {
                     exports: 'foundation',
                     deps: ['jquery']
+                },
+                highlight: {
+                    exports: 'hljs'
+                },
+                vkbeautify: {
+                    exports: 'vkbeautify'
                 }
              }
         });

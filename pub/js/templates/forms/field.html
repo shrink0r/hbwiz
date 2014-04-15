@@ -1,12 +1,21 @@
-<form class="field-properties-form">
+<form class="field-properties-form properties-form">
     <div class="flip-container">
         <div class="shadow flip-card">
             <div class="front face">
                 <div class="callout panel">
-                    <h6>Field (${ label })</h6>
-                    <i class="fi-wrench options-trigger"> 
-                        <a href="#options">Options</a>
-                    </i>
+                    <div class="panel-header">
+                        <h6 class="headline">Field
+                            <span class="type_label">  ( ${ type } )</span>
+                        </h6>
+                        <ul class="actions-list field-actions">
+                            <li>
+                                <a href="#options" class="options-trigger" title="Edit field options">
+                                    <i class="fi-wrench"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
                     <label>Name
                         <input type="text" name="name" class="field-property" placeholder="Meaningfull field name." />
                     </label>
@@ -17,10 +26,17 @@
             </div>
             <div class="back face center">
                 <div class="callout panel">
-                    <h6>Options</h6>
-                    <i class="fi-info options-trigger"> 
-                        <a href="#options">Field</a>
-                    </i>
+                    <div class="panel-header">
+                        <h6 class="headline">Options</h6>
+                        <ul class="actions-list">
+                            <li>
+                                <a href="#options" class="options-trigger" title="Back to field properties">
+                                    <i class="fi-x"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
                     <% _.forEach(options, function(option, name) { %>
                     <label class="option-root" title="<%- option.description %>"><%- name %>
                         <% if (option.type === 'boolean') { %>

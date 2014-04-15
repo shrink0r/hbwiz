@@ -6,6 +6,7 @@
         "options": {
             "slug_pattern": {
                 "type": "string",
+                "default": "doc-{short_id}",
                 "placeholder": "{title}-{short_id}",
                 "description": "Holds the pattern used to generate document slugs."
             },
@@ -41,13 +42,12 @@
         "options": {
             "implementor": {
                 "type": "string",
-                "default": "\\Honeybee\\Core\\Domain\\Module\\Module",
                 "placeholder": "Fully\\Qualified\\ClassName",
                 "description": "Holds the base class that the generated module will inherit from."
             },
             "document_implementor": {
                 "type": "string",
-                "default": "\\Honeybee\\Core\\Domain\\Document\\Document",
+                "default": "\\Honeybee\\Core\\Domain\\Document\\BaseDocument",
                 "placeholder": "Fully\\Qualified\\ClassName",
                 "description": "Holds the base class that the generated document will inherit from."
             }

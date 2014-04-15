@@ -4,12 +4,14 @@
   "private": true,
   "ignore": [],
   "dependencies": {
-    "kineticjs": "v5.1.0",
     "foundation": "5.2.1",
     "foundation-icon-fonts": "master",
-    "requirejs": "2.1.11",
+    "highlightjs": "8.0.0",
+    "kineticjs": "v5.1.0",
     "lodash-amd": "2.4.1",
-    "requirejs-text": "2.0.10"
+    "lodash-template-loader": "0.1.5",
+    "requirejs": "2.1.11",
+    "vkbeautify-wrapper": "master"
   },
   "devDependencies": {}
 }

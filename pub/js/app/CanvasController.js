@@ -68,6 +68,7 @@ define([
                     if (that.active_connection) {
                         that.active_connection.source.removeConnection(that.active_connection);
                         that.active_connection.target.removeConnection(that.active_connection);
+                        that.active_connection.field.removeConnection(that.active_connection);
                         that.active_connection.line.remove();
                         that.active_connection.capture_line.remove();
                         that.layers.main.draw();
@@ -275,6 +276,7 @@ define([
 
         source.addConnection(connection);
         target.addConnection(connection);
+        field.addConnection(connection);
 
         this.layers.main.add(connection.line);
         this.layers.main.add(connection.capture_line);

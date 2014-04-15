@@ -25,7 +25,9 @@ define([
         for (item_key in items_data) {
             item = items_data[item_key];
             $list_item = $(
-                '<li class="toolbar-item item-type-'+item_key+'">'+item.label+'</li>'
+                '<li class="toolbar-item item-type-'+item_key+'">' +
+                    '<span class="label radius">' + item.label + '</span>' +
+                '</li>'
             );
             item.$element = $list_item;
             this.$element.append($list_item);
@@ -65,7 +67,11 @@ define([
                 return false;
             }
         }).on("mousedown", toolbar_item_selector, function (e) {
-            $dragging = $(e.target).clone();
+            var $target = $(e.target);
+            if (!$target.hasClass('toolbar-item')) {
+                $target = $target.parent('.toolbar-item');
+            }
+            $dragging = $target.clone();
             $body.append($dragging);
 
             return false;

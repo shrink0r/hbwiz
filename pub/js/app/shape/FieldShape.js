@@ -8,6 +8,9 @@ define([
     var FieldShape = function(layer, name, options)
     {
         var noop = function() {};
+        var field_options = {};
+        var option_name = null;
+
         this.name = name;
 
         this.options = $.extend({}, options || {});
@@ -18,21 +21,59 @@ define([
         this.options.fill = this.options.fill || '#a5dcee';
         this.options.stroke = this.options.stroke || '#83bacc';
         this.options.stroke_width = this.options.stroke_width || 1;
+
+
+        for (option_name in this.options.options) {
+            if (this.options.options[option_name].default) {
+                field_options[option_name] = this.options.options[option_name].default;
+            }
+        }
+
         this.field_data = {
             name: 'no name',
             type: this.options.type,
             label: this.options.label,
             description: this.options.description,
-            options: {}
+            options: field_options
         };
 
         this.layer = layer;
         this.stage = layer.getStage();
         this.shape = this.build(this.options);
         this.selected = false;
+        this.connections = [];
     };
 
     FieldShape.prototype.constructor = FieldShape;
+
+    FieldShape.prototype.addConnection = function(connection)
+    {
+        this.connections.push(connection);
+    };
+
+    FieldShape.prototype.removeConnection = function(connection)
+    {
+        var index = this.connections.indexOf(connection);
+        if (index !== false) {
+            this.connections.splice(index, 1);
+        }
+    };
+
+    FieldShape.prototype.hasConnection = function(target, field)
+    {
+        var i = 0;
+        var cur_connection = null;
+        for (; i < this.connections.length; i++) {
+            cur_connection = this.connections[i];
+            if (
+                cur_connection.target === target &&
+                cur_connection.field === this
+            ) {
+                return true;
+            }
+        }
+        return false;
+    };
 
     FieldShape.prototype.setProperty = function(property_name, value)
     {

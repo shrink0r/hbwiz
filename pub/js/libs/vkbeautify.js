@@ -1,0 +1,1 @@
+../../../bower_components/vkbeautify-wrapper/dist/vkbeautify.0.99.00.beta.js
