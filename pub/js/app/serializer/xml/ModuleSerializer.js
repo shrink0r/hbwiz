@@ -44,9 +44,6 @@ define([
         reference_definitions = ModuleDataHolder.getReferences(module_data);
         aggregate_definitions = ModuleDataHolder.getAggregates(module_data);
 
-console.log(reference_definitions);
-console.log(aggregate_definitions);
-
         for (module_name in reference_definitions) {
             referenced_module = reference_definitions[module_name];
             reference_definitions_node.appendChild(
