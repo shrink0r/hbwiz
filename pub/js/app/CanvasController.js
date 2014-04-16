@@ -59,6 +59,9 @@ define([
             if (that.active_shape) {
                 that.onShapeDeselected(that.active_shape);
             }
+            if (that.active_connection) {
+                that.onConnectionDeselected(that.active_connection);
+            }
         });
 
         // remove shapes when they are selected and backspace is pressed
@@ -66,11 +69,8 @@ define([
             if (keyup_event.keyCode === 8) {
                 if (keyup_event.target.tagName !== 'INPUT') {
                     if (that.active_connection) {
-                        that.active_connection.source.removeConnection(that.active_connection);
-                        that.active_connection.target.removeConnection(that.active_connection);
-                        that.active_connection.field.removeConnection(that.active_connection);
-                        that.active_connection.line.remove();
-                        that.active_connection.capture_line.remove();
+                        that.active_connection.destroy();
+                        that.active_connection = null;
                         that.layers.main.draw();
                     } else {
                         that.removeSelectedShape();

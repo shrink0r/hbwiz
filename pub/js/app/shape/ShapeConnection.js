@@ -45,7 +45,7 @@ define([
             y: 0,
             lineCap: 'round',
             tension: 0.3,
-            strokeWidth: 15,
+            strokeWidth: 10,
             stroke: 'rgba(255, 255, 255, 0)'
         });
 
@@ -60,54 +60,29 @@ define([
                 that.line.getParent().draw();
             }
         }).on('click', function(event_data) {
-            var event = event_data.evt;
-            var mpos = { x: event.offsetX, y: event.offsetY };
-            var handle = new Kinetic.Circle({
-                x: mpos.x,
-                y: mpos.y,
-                opacity: 0.5,
-                stroke: '#008cba',
-                fill: '#efefef',
-                strokeWidth: 1,
-                radius: 5,
-                name: name,
-                draggable: true,
-                dragOnTop: false
-            });
-            handle.on('mouseover', function(event) {
-                event.cancelBubble = true;
-                var layer = this.getLayer();
-                document.body.style.cursor = 'pointer';
-                this.setOpacity(1);
-                layer.draw();
-            }).on('mousedown touchstart', function(event) {
-                event.cancelBubble = true;
-                this.moveToTop();
-                return false;
-            }).on('dragmove', function() {
-                var layer = this.getLayer();
-                document.body.style.cursor = 'pointer';
-                that.connect();
-                layer.draw();
-            }).on('dragend', function() {
-                var layer = this.getLayer();
-                layer.draw();
-            }).on('mouseout', function() {
-                var layer = this.getLayer();
-                document.body.style.cursor = 'default';
-                this.setOpacity(0.5);
-                layer.draw();
-            });
-
-            that.source.layer.add(handle);
-            that.point_handles.push(handle);
-
             if (that.selected) {
-                that.options.onDeselected(that);
+                that.addHandle(event_data.evt.offsetX, event_data.evt.offsetY);
+                that.connect();
+                that.source.layer.draw();
             } else {
                 that.options.onSelected(that);
             }
         });
+    };
+
+    ShapeConnection.prototype.destroy = function()
+    {
+        var i = 0;
+        this.source.removeConnection(this);
+        this.target.removeConnection(this);
+        this.field.removeConnection(this);
+        this.line.remove();
+        this.capture_line.remove();
+
+        for (; i < this.point_handles.length; i++) {
+            this.point_handles[i].remove();
+        }
+        this.point_handles = null;
     };
 
     ShapeConnection.prototype.connect = function()
@@ -144,15 +119,72 @@ define([
         for (i = 0; i < this.point_handles.length; i++) {
             points.push({ x: this.point_handles[i].getX(), y: this.point_handles[i].getY() });
         }
+
         points.splice(points.length, 0, { x: tpos_x, y: tpos_y });
-        points.sort(function(left, right) {
-            return left.x > right.x;
-        });
         for (i = 0; i < points.length; i++) {
             flat_points.splice(flat_points.length, 0, points[i].x, points[i].y);
         }
 
         return flat_points;
+    };
+
+    ShapeConnection.prototype.addHandle = function(x, y)
+    {
+        var that = this;
+        var insert_index = false;
+        var i = 0;
+        var handle = new Kinetic.Circle({
+            x: x,
+            y: y,
+            opacity: 0.5,
+            stroke: '#008cba',
+            fill: '#efefef',
+            strokeWidth: 1,
+            radius: 5,
+            name: name,
+            draggable: true,
+            dragOnTop: false
+        });
+
+        handle.on('mouseover', function(event) {
+            var layer = this.getLayer();
+            event.cancelBubble = true;
+            document.body.style.cursor = 'pointer';
+            this.setOpacity(1);
+            layer.draw();
+        }).on('mousedown touchstart', function(event) {
+            event.cancelBubble = true;
+            this.moveToTop();
+            return false;
+        }).on('dragmove', function() {
+            var layer = this.getLayer();
+            document.body.style.cursor = 'pointer';
+            that.connect();
+            layer.draw();
+        }).on('dragend', function() {
+            var layer = this.getLayer();
+            layer.draw();
+        }).on('click', function() {
+            var layer = this.getLayer();
+            layer.draw();
+        }).on('mouseout', function() {
+            var layer = this.getLayer();
+            document.body.style.cursor = 'default';
+            this.setOpacity(0.5);
+            layer.draw();
+        });
+
+        for (; i < this.point_handles.length && insert_index === false; i++) {
+            if (this.point_handles[i].getX() > x) {
+                insert_index = i;
+            }
+        }
+        if (insert_index === false) {
+            insert_index = this.point_handles.length;
+        }
+
+        this.point_handles.splice(insert_index, 0, handle);
+        this.source.layer.add(handle);
     };
 
     ShapeConnection.prototype.select = function()
