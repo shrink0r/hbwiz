@@ -15,6 +15,7 @@ define([
         this.line = null;
         this.capture_line = null;
         this.selected = false;
+        this.point_handles = [];
 
         this.options = $.extend({}, options || {});
         this.options.onSelected = this.options.onSelected || noop;
@@ -58,7 +59,49 @@ define([
                 that.line.setStrokeWidth(1);
                 that.line.getParent().draw();
             }
-        }).on('click', function() {
+        }).on('click', function(event_data) {
+            var event = event_data.evt;
+            var mpos = { x: event.offsetX, y: event.offsetY };
+            var handle = new Kinetic.Circle({
+                x: mpos.x,
+                y: mpos.y,
+                opacity: 0.5,
+                stroke: '#008cba',
+                fill: '#efefef',
+                strokeWidth: 1,
+                radius: 5,
+                name: name,
+                draggable: true,
+                dragOnTop: false
+            });
+            handle.on('mouseover', function(event) {
+                event.cancelBubble = true;
+                var layer = this.getLayer();
+                document.body.style.cursor = 'pointer';
+                this.setOpacity(1);
+                layer.draw();
+            }).on('mousedown touchstart', function(event) {
+                event.cancelBubble = true;
+                this.moveToTop();
+                return false;
+            }).on('dragmove', function() {
+                var layer = this.getLayer();
+                document.body.style.cursor = 'pointer';
+                that.connect();
+                layer.draw();
+            }).on('dragend', function() {
+                var layer = this.getLayer();
+                layer.draw();
+            }).on('mouseout', function() {
+                var layer = this.getLayer();
+                document.body.style.cursor = 'default';
+                this.setOpacity(0.5);
+                layer.draw();
+            });
+
+            that.source.layer.add(handle);
+            that.point_handles.push(handle);
+
             if (that.selected) {
                 that.options.onDeselected(that);
             } else {
@@ -68,6 +111,14 @@ define([
     };
 
     ShapeConnection.prototype.connect = function()
+    {
+        var points = this.getPoints();
+
+        this.line.setPoints(points);
+        this.capture_line.setPoints(points);
+    };
+
+    ShapeConnection.prototype.getPoints = function()
     {
         var source, source_pos, spos_x, spos_y;
         var target, target_pos, tpos_x, tpos_y;
@@ -87,23 +138,28 @@ define([
         tpos_y = abs_trgt_pos.y + (target.height() / 2);
 
         var delta_x = tpos_x - spos_x;
-        var points = [
-            spos_x,
-            spos_y,
-            tpos_x - (delta_x / 2) - 20,
-            tpos_y - ((tpos_y - spos_y) / 2),
-            tpos_x,
-            tpos_y
-        ];
+        var points = [{ x: spos_x, y: spos_y }];
+        var i = 0;
+        var flat_points = [];
+        for (i = 0; i < this.point_handles.length; i++) {
+            points.push({ x: this.point_handles[i].getX(), y: this.point_handles[i].getY() });
+        }
+        points.splice(points.length, 0, { x: tpos_x, y: tpos_y });
+        points.sort(function(left, right) {
+            return left.x > right.x;
+        });
+        for (i = 0; i < points.length; i++) {
+            flat_points.splice(flat_points.length, 0, points[i].x, points[i].y);
+        }
 
-        this.line.setPoints(points);
-        this.capture_line.setPoints(points);
+        return flat_points;
     };
 
     ShapeConnection.prototype.select = function()
     {
         this.selected = true;
         this.line.setStrokeWidth(2);
+        this.connect();
     };
 
     ShapeConnection.prototype.deselect = function()
