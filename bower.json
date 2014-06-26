@@ -11,7 +11,8 @@
     "lodash-amd": "2.4.1",
     "lodash-template-loader": "0.1.5",
     "requirejs": "2.1.11",
-    "vkbeautify-wrapper": "master"
+    "vkbeautify-wrapper": "master",
+    "jszip": "2.0.0"
   },
   "devDependencies": {}
 }

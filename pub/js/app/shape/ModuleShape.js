@@ -15,6 +15,7 @@ define([
         this.layer = layer;
         this.fields = [];
         this.anchors = {};
+        this.connectors = {};
 
         this.options = $.extend({}, options || {});
         this.options.onSelected = this.options.onSelected || noop;
@@ -93,7 +94,9 @@ define([
     ModuleShape.prototype.addField = function(field_shape)
     {
         var options = this.options;
-
+        var anchor_idx = 0;
+        var field_group = field_shape.shape;
+        var field = field_group.find('.main_shape')[0];
         field_shape.options.onSelected = this.onFieldSelected.bind(this);
         field_shape.options.onDeselected = options.onDeselected;
 
@@ -253,10 +256,8 @@ define([
         });
         group.add(label);
 
-        this.anchors.nw = this.addAnchor(group, 0, 0, 'nw');
-        this.anchors.ne = this.addAnchor(group, this.options.min_width, 0, 'ne');
-        this.anchors.sw = this.addAnchor(group, 0, this.options.min_height, 'sw');
-        this.anchors.se = this.addAnchor(group, this.options.min_width, this.options.min_height, 'se');
+        this.setupConnectors(group, rectangle);
+        this.setupAnchors(group, rectangle);
 
         group.on('dragstart', function() {
             this.moveToTop();
@@ -267,30 +268,60 @@ define([
 
     ModuleShape.prototype.select = function()
     {
-        this.selected = true;
         var rectangle = this.shape.find('.main_shape')[0];
+        var anchor_key = null;
+
+        this.selected = true;
         rectangle.setStrokeWidth(3);
+
+        for (anchor_key in this.anchors) {
+            this.anchors[anchor_key].visible(true);
+        }
+
+        for (anchor_key in this.connectors) {
+            this.connectors[anchor_key].visible(true);
+        }
     };
 
     ModuleShape.prototype.deselect = function()
     {
         var rectangle = this.shape.find('.main_shape')[0];
+        var anchor_key = null;
+
         this.selected = false;
         rectangle.setStrokeWidth(1);
+
+        for (anchor_key in this.anchors) {
+            this.anchors[anchor_key].visible(false);
+        }
+
+        for (anchor_key in this.connectors) {
+            this.connectors[anchor_key].visible(false);
+        }
+    };
+
+    ModuleShape.prototype.setupAnchors = function(group, rectangle)
+    {
+        this.anchors.nw = this.addAnchor(group, 0, 0, 'nw');
+        this.anchors.ne = this.addAnchor(group, this.options.min_width, 0, 'ne');
+        this.anchors.sw = this.addAnchor(group, 0, this.options.min_height, 'sw');
+        this.anchors.se = this.addAnchor(group, this.options.min_width, this.options.min_height, 'se');
     };
 
     ModuleShape.prototype.addAnchor = function(group, x, y, name)
     {
         var that = this;
         var main_shape = group.find('.main_shape')[0];
-        var anchor = new Kinetic.Circle({
-            x: x,
-            y: y,
+        var size_offset = this.options.handle_size;
+        var anchor = new Kinetic.Rect({
+            x: x - size_offset,
+            y: y - size_offset,
             opacity: 0.5,
             stroke: '#ababab',
             fill: '#efefef',
             strokeWidth: 1,
-            radius: this.options.handle_size,
+            width: this.options.handle_size * 2,
+            height: this.options.handle_size * 2,
             name: name,
             draggable: true,
             dragOnTop: false
@@ -324,74 +355,268 @@ define([
         return anchor;
     };
 
+    ModuleShape.prototype.setupConnectors = function(group, rectangle)
+    {
+        var vunit_measure = rectangle.getHeight() / 3;
+        var vunit_offset = vunit_measure / 2;
+        var hunit_measure = rectangle.getWidth() / 3;
+        var hunit_offset = hunit_measure / 2;
+
+        this.connectors.north_left = this.addConnector(
+            group,
+            hunit_measure * 1 - hunit_offset,
+            0,
+            'north_left'
+        );
+        this.connectors.north_center = this.addConnector(
+            group,
+            hunit_measure * 2 - hunit_offset,
+            0,
+            'north_center'
+        );
+        this.connectors.north_right = this.addConnector(
+            group,
+            hunit_measure * 3 - hunit_offset,
+            0,
+            'north_right'
+        );
+
+        this.connectors.east_upper = this.addConnector(
+            group,
+            rectangle.getWidth(),
+            vunit_measure * 1 - vunit_offset,
+            'east_upper'
+        );
+        this.connectors.east_middle = this.addConnector(
+            group,
+            rectangle.getWidth(),
+            vunit_measure * 2  - vunit_offset,
+            'east_middle'
+        );
+        this.connectors.east_lower = this.addConnector(
+            group,
+            rectangle.getWidth(),
+            vunit_measure * 3 - vunit_offset,
+            'east_lower'
+        );
+
+        this.connectors.south_left = this.addConnector(
+            group,
+            hunit_measure * 1 - hunit_offset,
+            rectangle.getHeight(),
+            'south_left'
+        );
+        this.connectors.south_center = this.addConnector(
+            group,
+            hunit_measure * 2 - hunit_offset,
+            rectangle.getHeight(),
+            'south_center'
+        );
+        this.connectors.south_right = this.addConnector(
+            group,
+            hunit_measure * 3 - hunit_offset,
+            rectangle.getHeight(),
+            'south_right'
+        );
+
+        this.connectors.west_upper = this.addConnector(
+            group,
+            0,
+            vunit_measure * 1 - vunit_offset,
+            'west_upper'
+        );
+        this.connectors.west_middle = this.addConnector(
+            group,
+            0,
+            vunit_measure * 2  - vunit_offset,
+            'west_middle'
+        );
+        this.connectors.west_lower = this.addConnector(
+            group,
+            0,
+            vunit_measure * 3 - vunit_offset,
+            'west_lower'
+        );
+    };
+
+    ModuleShape.prototype.updateConnectors = function()
+    {
+        var group = this.shape;
+        var rectangle = group.find('.main_shape')[0];
+        var pos = rectangle.getPosition();
+        var vunit_measure = rectangle.getHeight() / 3;
+        var vunit_offset = vunit_measure / 2;
+        var hunit_measure = rectangle.getWidth() / 3;
+        var hunit_offset = hunit_measure / 2;
+
+        this.connectors.north_left.setPosition({
+            x: pos.x + hunit_measure * 1 - hunit_offset,
+            y: pos.y + 0
+        });
+        this.connectors.north_center.setPosition({
+            x: pos.x + hunit_measure * 2 - hunit_offset,
+            y: pos.y + 0
+        });
+        this.connectors.north_right.setPosition({
+            x: pos.x + hunit_measure * 3 - hunit_offset,
+            y: pos.y + 0
+        });
+
+        this.connectors.east_upper.setPosition({
+            x: pos.x + rectangle.getWidth(),
+            y: pos.y + vunit_measure * 1 - vunit_offset
+        });
+        this.connectors.east_middle.setPosition({
+            x: pos.x + rectangle.getWidth(),
+            y: pos.y + vunit_measure * 2  - vunit_offset
+        });
+        this.connectors.east_lower.setPosition({
+            x: pos.x + rectangle.getWidth(),
+            y: pos.y + vunit_measure * 3  - vunit_offset
+        });
+
+        this.connectors.south_left.setPosition({
+            x: pos.x + hunit_measure * 1 - hunit_offset,
+            y: pos.y + rectangle.getHeight()
+        });
+        this.connectors.south_center.setPosition({
+            x: pos.x + hunit_measure * 2 - hunit_offset,
+            y: pos.y + rectangle.getHeight()
+        });
+        this.connectors.south_right.setPosition({
+            x: pos.x + hunit_measure * 3 - hunit_offset,
+            y: pos.y + rectangle.getHeight()
+        });
+
+        this.connectors.west_upper.setPosition({
+            x: pos.x + 0,
+            y: pos.y + vunit_measure * 1 - vunit_offset
+        });
+        this.connectors.west_middle.setPosition({
+            x: pos.x + 0,
+            y: pos.y + vunit_measure * 2 - vunit_offset
+        });
+        this.connectors.west_lower.setPosition({
+            x: pos.x + 0,
+            y: pos.y + vunit_measure * 3 - vunit_offset
+        });
+    };
+
+    ModuleShape.prototype.addConnector = function(group, x, y, name)
+    {
+        var that = this;
+        var main_shape = group.find('.main_shape')[0];
+        var connector = new Kinetic.Circle({
+            x: x,
+            y: y,
+            opacity: 0.5,
+            stroke: '#064204',
+            fill: '#efefef',
+            strokeWidth: 1,
+            radius: this.options.handle_size,
+            name: name,
+            draggable: false
+        });
+
+        connector.on('mouseover', function(event) {
+            event.cancelBubble = true;
+            var layer = this.getLayer();
+            document.body.style.cursor = name + '-resize';
+            this.setOpacity(1);
+            layer.draw();
+        }).on('mouseout', function() {
+            var layer = this.getLayer();
+            document.body.style.cursor = 'default';
+            this.setOpacity(0.5);
+            layer.draw();
+        });
+
+        group.add(connector);
+
+        return connector;
+    };
+
     ModuleShape.prototype.update = function(moving_anchor)
     {
         var group = this.shape;
-
+        var size_offset = this.options.handle_size;
         var top_left = this.anchors.nw;
         var top_right = this.anchors.ne;
         var bottom_right = this.anchors.se;
         var bottom_left = this.anchors.sw;
         var shape = group.find('.main_shape')[0];
         var label = group.find('.main_label')[0];
-
         var anchor_x = moving_anchor.x();
         var anchor_y = moving_anchor.y();
+        var min_edge_left = top_right.getX() - this.options.min_width;
+        var min_edge_right = top_left.getX() + this.options.min_width;
+        var min_edge_top = bottom_left.getY() - this.options.min_height;
+        var min_edge_bottom = top_left.getY() + this.options.min_height;
+        var anchor_name = moving_anchor.getName().replace(/\-\d+/, '');
+        var cur_anchor = null;
+        var cur_anchor_name = null;
+        var anchor_matches = null;
+        var anchor_field_group = null;
+        var anchor_field = null;
 
         // update anchor positions
-        switch (moving_anchor.name()) {
+        switch (anchor_name) {
             case 'nw':
                 top_right.setY(anchor_y);
                 bottom_left.setX(anchor_x);
-                if (anchor_x > top_right.getX() - this.options.min_width) {
-                    moving_anchor.setX(top_right.getX() - this.options.min_width);
-                    bottom_left.setX(top_right.getX() - this.options.min_width);
+
+                if (anchor_x > min_edge_left) {
+                    moving_anchor.setX(min_edge_left);
+                    bottom_left.setX(min_edge_left);
                 }
-                if (anchor_y > bottom_left.getY() - this.options.min_height) {
-                    moving_anchor.setY(bottom_left.getY() - this.options.min_height);
-                    top_right.setY(bottom_left.getY() - this.options.min_height);
+                if (anchor_y > min_edge_top) {
+                    moving_anchor.setY(min_edge_top);
+                    top_right.setY(min_edge_top);
                 }
                 break;
             case 'ne':
                 top_left.setY(anchor_y);
                 bottom_right.setX(anchor_x);
-                if (anchor_x < top_left.getX() + this.options.min_width) {
-                    moving_anchor.setX(top_left.getX() + this.options.min_width);
-                    bottom_right.setX(top_left.getX() + this.options.min_width);
+
+                if (anchor_x < min_edge_right) {
+                    moving_anchor.setX(min_edge_right);
+                    bottom_right.setX(min_edge_right);
                 }
-                if (anchor_y > bottom_left.getY() - this.options.min_height) {
-                    moving_anchor.setY(bottom_left.getY() - this.options.min_height);
-                    top_left.setY(bottom_left.getY() - this.options.min_height);
+                if (anchor_y > min_edge_top) {
+                    moving_anchor.setY(min_edge_top);
+                    top_left.setY(min_edge_top);
                 }
                 break;
             case 'se':
                 bottom_left.setY(anchor_y);
                 top_right.setX(anchor_x);
-                if (anchor_x < bottom_left.getX() + this.options.min_width) {
-                    moving_anchor.setX(bottom_left.getX() + this.options.min_width);
-                    top_right.setX(bottom_left.getX() + this.options.min_width);
+
+                if (anchor_x < min_edge_right) {
+                    moving_anchor.setX(min_edge_right);
+                    top_right.setX(min_edge_right);
                 }
-                if (anchor_y < top_left.getY() + this.options.min_height) {
-                    moving_anchor.setY(top_left.getY() + this.options.min_height);
-                    bottom_left.setY(top_left.getY() + this.options.min_height);
+                if (anchor_y < min_edge_bottom) {
+                    moving_anchor.setY(min_edge_bottom);
+                    bottom_left.setY(min_edge_bottom);
                 }
                 break;
             case 'sw':
                 bottom_right.setY(anchor_y);
                 top_left.setX(anchor_x);
-                if (anchor_x > top_right.getX() - this.options.min_width) {
-                    moving_anchor.setX(top_right.getX() - this.options.min_width);
-                    top_left.setX(top_right.getX() - this.options.min_width);
+
+                if (anchor_x > min_edge_left) {
+                    moving_anchor.setX(min_edge_left);
+                    top_left.setX(min_edge_left);
                 }
-                if (anchor_y < top_left.getY() + this.options.min_height) {
-                    moving_anchor.setY(top_left.getY() + this.options.min_height);
-                    bottom_right.setY(top_left.getY() + this.options.min_height);
+                if (anchor_y < min_edge_bottom) {
+                    moving_anchor.setY(min_edge_bottom);
+                    bottom_right.setY(min_edge_bottom);
                 }
                 break;
         }
 
-        shape.setPosition(top_left.getPosition());
-        label.setPosition(top_left.getPosition());
+        shape.setPosition({ x: top_left.getX() + size_offset, y: top_left.getY() + size_offset });
+        label.setPosition({ x: top_left.getX() + size_offset, y: top_left.getY() + size_offset });
 
         var width = top_right.x() - top_left.x();
         var height = bottom_left.y() - top_left.y();
@@ -406,6 +631,8 @@ define([
                 this.connections[i].connect();
             }
         }
+
+        this.updateConnectors(shape);
     };
 
     return ModuleShape;

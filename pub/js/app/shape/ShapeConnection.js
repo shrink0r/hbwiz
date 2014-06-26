@@ -143,7 +143,8 @@ define([
             radius: 5,
             name: name,
             draggable: true,
-            dragOnTop: false
+            dragOnTop: false,
+            visibile: false
         });
 
         handle.on('mouseover', function(event) {
@@ -189,15 +190,26 @@ define([
 
     ShapeConnection.prototype.select = function()
     {
+        var i = 0;
+
         this.selected = true;
         this.line.setStrokeWidth(2);
         this.connect();
+        for (; i < this.point_handles.length; i++) {
+            this.point_handles[i].visible(true);
+        }
     };
 
     ShapeConnection.prototype.deselect = function()
     {
+        var i = 0;
+
         this.selected = false;
         this.line.setStrokeWidth(1);
+
+        for (; i < this.point_handles.length; i++) {
+            this.point_handles[i].visible(false);
+        }
     };
 
     return ShapeConnection;

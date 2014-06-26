@@ -10,13 +10,14 @@ define([
     "tpl!templates/forms/field",
     "app/serializer/xml/ModuleSerializer",
     "app/serializer/ModuleDataHolder",
-    "highlight",
+    "highlight","JSZip"
 ], function(
     $, CanvasController, Toolbar,
     ModuleForm, FieldForm,
     ModuleShape, FieldShape,
     module_form_tpl, field_form_tpl,
-    ModuleSerializer, ModuleDataHolder, hljs
+    ModuleSerializer, ModuleDataHolder,
+    hljs, JSZip
 ) {
 
     "use strict";
@@ -153,6 +154,28 @@ define([
         $('.canvas-panel').hide();
         $('.module-schemes-panel .current_module_label').text(module_data.module.name);
         $('.module-schemes-panel').show();
+    };
+
+    Application.prototype.onZipDataDemanded = function()
+    {
+        if (!this.canvas_controller.active_shape) {
+            return false;
+        }
+
+        var module_data = ModuleDataHolder.createFromShape(
+            this.canvas_controller.active_shape
+        );
+        var serializer = new ModuleSerializer();
+        var xml_code = serializer.asString(module_data);
+
+        var zip = new JSZip();
+        zip.file("module.xml", xml_code);
+        this.canvas_controller.stage.toDataURL({
+            callback: function(data_url) {
+                zip.file("domain.png", data_url, {base64: false});
+                location.href = "data:application/zip;base64," + zip.generate();
+            }
+        });
     };
 
     Application.prototype.onToolbarItemDropped = function(dropped_item)

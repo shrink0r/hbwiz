@@ -92,7 +92,8 @@
                 kineticjs: 'libs/kinetic',
                 highlight: 'libs/highlight',
                 tpl: "libs/loader",
-                vkbeautify: "libs/vkbeautify"
+                vkbeautify: "libs/vkbeautify",
+                JSZip: "libs/jszip"
             },
             shim: {
                 foundation: {
@@ -104,6 +105,9 @@
                 },
                 vkbeautify: {
                     exports: 'vkbeautify'
+                },
+                JSZip: {
+                    exports: 'JSZip'
                 }
              }
         });
